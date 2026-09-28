@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Compare a job description against your known skills with a transparent rule-based analyzer.">
+  <title>Job Skill Analyzer</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <script defer src="{{ url_for('static', filename='app.js') }}"></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="Job Skill Analyzer home"><span class="brand-mark">JS</span> Job Skill Analyzer</a>
+    <span class="private-note">Local, rule-based, no account needed</span>
+  </header>
+
+  <main class="page">
+    <section class="intro">
+      <p class="eyebrow">Smart job fit analysis</p>
+      <h1>Match your skills<br><span>to the role.</span></h1>
+      <p class="intro-copy">Paste a job description and your current skills to see the gaps, categories, and priority areas worth improving.</p>
+    </section>
+
+    <form id="analyzer-form" novalidate>
+      <div class="input-grid">
+        <label class="input-card" for="job-description">
+          <span class="field-heading"><span class="field-number">01</span> Job description</span>
+          <span class="field-hint">Paste the job description you want to analyze.</span>
+          <textarea id="job-description" name="job_description" maxlength="{{ max_text_length }}" placeholder="Looking for a Python backend developer with FastAPI, PostgreSQL, Docker, AWS and REST API experience." required></textarea>
+          <span class="char-count" data-count-for="job-description">0 / {{ "{:,}".format(max_text_length) }}</span>
+        </label>
+
+        <label class="input-card" for="user-skills">
+          <span class="field-heading"><span class="field-number">02</span> Your skills</span>
+          <span class="field-hint">Add the skills you already know, separated by commas or new lines.</span>
+          <textarea id="user-skills" name="user_skills" maxlength="{{ max_text_length }}" placeholder="Python, FastAPI, PostgreSQL, Docker, REST API, Git" required></textarea>
+          <span class="char-count" data-count-for="user-skills">0 / {{ "{:,}".format(max_text_length) }}</span>
+        </label>
+      </div>
+
+      <div class="form-actions">
+        <p class="privacy-hint">This analyzer compares detected role requirements against your known skills using a transparent rule-based catalog.</p>
+        <button class="button button-primary" id="analyze-button" type="submit"><span>Analyze job</span><span aria-hidden="true">→</span></button>
+      </div>
+    </form>
+
+    <div id="status-message" class="status-message" role="alert" aria-live="polite" hidden></div>
+
+    <section id="results" class="results" aria-labelledby="results-heading" hidden>
+      <div class="results-heading">
+        <div>
+          <p class="eyebrow">Analysis summary</p>
+          <h2 id="results-heading">Skill gap overview</h2>
+        </div>
+        <div class="result-actions">
+          <button class="button button-secondary" id="copy-button" type="button">Copy summary</button>
+          <button class="button button-secondary" id="download-button" type="button">Download</button>
+          <button class="button button-quiet" id="reset-button" type="button">Reset</button>
+        </div>
+      </div>
+
+      <div class="summary-card">
+        <div class="score" aria-label="Match score">
+          <strong id="match-percentage">0%</strong>
+          <span>match score</span>
+        </div>
+        <div class="summary-divider"></div>
+        <div class="summary-stat"><strong id="detected-count">0</strong><span>detected skills</span></div>
+        <div class="summary-stat"><strong id="matched-count">0</strong><span>matched skills</span></div>
+        <div class="summary-stat"><strong id="missing-count">0</strong><span>missing skills</span></div>
+        <p id="score-note" class="score-note"></p>
+      </div>
+
+      <div class="skill-grid">
+        <article class="skill-card matched-card">
+          <div class="card-title">
+            <span class="status-icon matched-icon" aria-hidden="true">✓</span>
+            <div><h3>Matched skills</h3><p>Skills already in your profile</p></div>
+          </div>
+          <ul id="matched-list" class="skill-list"></ul>
+        </article>
+
+        <article class="skill-card missing-card">
+          <div class="card-title">
+            <span class="status-icon missing-icon" aria-hidden="true">!</span>
+            <div><h3>Missing skills</h3><p>Skills the role requires but you do not yet list</p></div>
+          </div>
+          <ul id="missing-list" class="skill-list"></ul>
+        </article>
+      </div>
+
+      <article class="skill-card candidate-card">
+        <div class="card-title">
+          <span class="status-icon candidate-icon" aria-hidden="true">✦</span>
+          <div><h3>Detected skills by category</h3><p>Role requirements found in the description</p></div>
+        </div>
+        <div id="candidate-skills" class="category-list"></div>
+      </article>
+
+      <article class="skill-card priority-card">
+        <div class="card-title">
+          <span class="status-icon priority-icon" aria-hidden="true">↗</span>
+          <div><h3>Priority</h3><p>Focus areas ranked by urgency</p></div>
+        </div>
+        <ul id="priority-list" class="priority-list"></ul>
+      </article>
+
+      <p class="disclaimer">This is a transparent rule-based analysis intended for planning and skill review, not as a hiring prediction.</p>
+    </section>
+  </main>
+  <footer>Thoughtful preparation starts with one small step.</footer>
+</body>
+</html>
